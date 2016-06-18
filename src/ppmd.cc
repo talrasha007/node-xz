@@ -41,8 +41,8 @@ void writePpmdHead(char *head, unsigned order, UInt32 dicmem) {
 }
 
 void PpmdTr::setup(v8::Handle<v8::Object>& exports) {
-    NODE_SET_METHOD(exports, "compress", BufferExports<PpmdTr>::compress);
-    NODE_SET_METHOD(exports, "decompress", BufferExports<PpmdTr>::decompress);
+    Nan::SetMethod(exports, "compress", BufferExports<PpmdTr>::compress);
+    Nan::SetMethod(exports, "decompress", BufferExports<PpmdTr>::decompress);
 }
 
 size_t PpmdTr::getUnpackSize(const char *in, size_t len) {

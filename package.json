@@ -5,7 +5,7 @@
   "description": "node bindings for the lzma compression library",
   "readme": "node bindings for the lzma compression library",
   "dependencies": {
-    "nan": "~1.8.4"
+    "nan": "^2.3.5"
   },
   "main": "lib/index.js"
 }

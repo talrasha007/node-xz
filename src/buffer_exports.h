@@ -9,62 +9,59 @@
 template <typename TR> class BufferExports {
 public:
     void setup(v8::Handle<v8::Object> exports) {
-        NODE_SET_METHOD(exports, "compress", compress);
-        NODE_SET_METHOD(exports, "decompress", decompress);
+        Nan::SetMethod(exports, "compress", compress);
+        Nan::SetMethod(exports, "decompress", decompress);
     }
 
     static NAN_METHOD(compress) {
-        NanScope();
 
-        if (args.Length() == 0) {
-            NanReturnUndefined();
+        if (info.Length() == 0) {
+            return;
         }
 
         int arg1 = -1;
         int arg2 = -1;
 
-        if (args[1]->IsNumber()) { arg1 = args[1]->Int32Value(); }
-        if (args[2]->IsNumber()) { arg2 = args[2]->Int32Value(); }
+        if (info[1]->IsNumber()) { arg1 = (int)info[1]->IntegerValue(); }
+        if (info[2]->IsNumber()) { arg2 = (int)info[2]->IntegerValue(); }
 
-        size_t len = node::Buffer::Length(args[0]);
-        const char *in = node::Buffer::Data(args[0]);
+        size_t len = node::Buffer::Length(info[0]);
+        const char *in = node::Buffer::Data(info[0]);
 
         size_t outLen = len + 128 + std::min(size_t(128 * 1024 * 1024), len / 3);
         char *out = new char[outLen];
 
         TR::compress(out, &outLen, in, len, arg1, arg2);
 
-        v8::Local<v8::Object> ret = NanNewBufferHandle(outLen);
-        char *retBuf = node::Buffer::Data(ret);
-        memcpy(retBuf, out, outLen);
+        v8::Local<v8::Object> ret = Nan::CopyBuffer(out, outLen).ToLocalChecked();
 
         delete out;
-        NanReturnValue(ret);
+        info.GetReturnValue().Set(ret);
     }
 
     static NAN_METHOD(decompress) {
-        NanScope();
 
-        if (args.Length() == 0) {
-            NanReturnUndefined();
+        if (info.Length() == 0) {
+            return;
         }
 
-        size_t len = node::Buffer::Length(args[0]);
-        const char *in = node::Buffer::Data(args[0]);
+        size_t len = node::Buffer::Length(info[0]);
+        const char *in = node::Buffer::Data(info[0]);
 
         size_t outLen = TR::getUnpackSize(in, len);
         if (outLen == 0) {
-            NanThrowError("Bad input.");
-            NanReturnUndefined();
+            Nan::ThrowError("Bad input.");
+            return;
         }
-        v8::Local<v8::Object> ret = NanNewBufferHandle(outLen);
+		
+		v8::Local<v8::Object> ret = Nan::NewBuffer(outLen).ToLocalChecked();
         char *out = node::Buffer::Data(ret);
 
         if (TR::decompress(out, &outLen, in, &len) != 0) {
-            NanThrowError("Bad input.");
-            NanReturnUndefined();
+            Nan::ThrowError("Bad input.");
+            return;
         }
 
-        NanReturnValue(ret);
+        info.GetReturnValue().Set(ret);
     }
 };

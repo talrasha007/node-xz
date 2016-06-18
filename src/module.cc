@@ -6,13 +6,13 @@
 using namespace v8;
 
 void init(v8::Handle<v8::Object> exports) {
-    Local<Object> lzma = NanNew<Object>();
+    Local<Object> lzma = Nan::New<Object>();
     LzmaTr::setup(lzma);
-    exports->Set(NanNew("lzma"), lzma);
+    Nan::Set(exports, Nan::New("lzma").ToLocalChecked(), lzma);
 
-    Local<Object> ppmd = NanNew<Object>();
+    Local<Object> ppmd = Nan::New<Object>();
     PpmdTr::setup(ppmd);
-    exports->Set(NanNew("ppmd"), ppmd);
+    Nan::Set(exports, Nan::New("ppmd").ToLocalChecked(), ppmd);
 
 }
 
